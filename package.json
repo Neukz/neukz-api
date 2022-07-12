@@ -1,0 +1,19 @@
+{
+	"name": "neukz-api",
+	"version": "1.0.0",
+	"description": "Back-end for personal projects",
+	"main": "index.js",
+	"scripts": {
+		"start": "NODE_ENV=production node index.js",
+		"dev": "nodemon index.js"
+	},
+	"author": "Kacper Neumann",
+	"license": "MIT",
+	"dependencies": {
+		"dotenv": "^16.0.1",
+		"express": "^4.18.1"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.19"
+	}
+}
