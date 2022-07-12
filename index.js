@@ -2,11 +2,17 @@ const express = require('express');
 
 // Load environment variables
 require('dotenv').config({ path: './config/config.env' });
-console.log(process.env.PORT);
+
+// Routes
+const summoners = require('./routes/summoners');
+
 // Initialize express
 const app = express();
 
-const port = process.env.PORT || 5000;
+// Mount routers
+app.use('/api/summoners', summoners);
+
+const port = process.env.PORT;
 
 app.listen(
 	port,
