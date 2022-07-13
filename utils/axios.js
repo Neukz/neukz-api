@@ -2,14 +2,14 @@
 const axios = require('axios');
 
 // Riot Games API - League of Legends
-exports.riotLOL = axios.create({
+exports.LeagueOfLegendsAPI = axios.create({
 	headers: {
 		'X-Riot-Token': process.env.LOL_TOKEN
 	}
 });
 
-// Riot Games API - Teamfight Tactics
-exports.riotTFT = axios.create({
+// Riot Games API -
+exports.TeamfightTacticsAPI = axios.create({
 	headers: {
 		'X-Riot-Token': process.env.TFT_TOKEN
 	}
