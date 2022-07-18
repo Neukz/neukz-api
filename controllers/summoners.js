@@ -1,4 +1,5 @@
 const { LeagueOfLegendsAPI, TeamfightTacticsAPI } = require('../utils/axios');
+const { regions } = require('../constants/riotRegions');
 const {
 	summonerFields,
 	statsFields
@@ -8,18 +9,21 @@ const {
 exports.getSummoner = async function (req, res, next) {
 	const { region, summonerName } = req.params;
 
+	// Check if region is valid and return corresponding routing value
+	const platform = regions.find(r => r.abbreviation === region.toLowerCase());
+
 	// Get summoner account data
 	const summoner = await LeagueOfLegendsAPI.get(
-		`https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`
+		`https://${platform.value}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`
 	);
 
 	// Get summoner stats from both games simultaneously
 	const stats = await Promise.all([
 		LeagueOfLegendsAPI.get(
-			`https://${region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.data.id}`
+			`https://${platform.value}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.data.id}`
 		),
 		TeamfightTacticsAPI.get(
-			`https://${region}.api.riotgames.com/tft/league/v1/entries/by-summoner/${summoner.data.id}`
+			`https://${platform.value}.api.riotgames.com/tft/league/v1/entries/by-summoner/${summoner.data.id}`
 		)
 	]);
 
@@ -40,7 +44,7 @@ exports.getSummoner = async function (req, res, next) {
 		});
 	});
 
-	const [LOL, TFT] = filteredStats;
-	const response = { summoner: filteredSummoner, stats: { LOL, TFT } };
+	const [LoL, TFT] = filteredStats;
+	const response = { summoner: filteredSummoner, stats: { LoL, TFT } };
 	res.status(200).json(response);
 };
