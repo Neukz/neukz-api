@@ -12,9 +12,10 @@ exports.getSummoner = async function (req, res, next) {
 	// Check if region is valid and return corresponding routing value
 	const platform = regions.find(r => r.abbreviation === region.toLowerCase());
 
+	const encodedSummonerName = encodeURIComponent(summonerName);
 	// Get summoner account data
 	const summoner = await LeagueOfLegendsAPI.get(
-		`https://${platform.value}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`
+		`https://${platform.value}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodedSummonerName}`
 	);
 
 	// Get summoner stats from both games simultaneously
