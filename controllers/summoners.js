@@ -46,6 +46,16 @@ exports.getSummoner = async function (req, res, next) {
 	});
 
 	const [LoL, TFT] = filteredStats;
+
+	// Bugfix: move RANKED_TFT_DOUBLE_UP from LoL stats to TFT stats
+	// See: https://github.com/RiotGames/developer-relations/issues/572
+	LoL.map((stats, index) => {
+		if (stats.queueType === 'RANKED_TFT_DOUBLE_UP') {
+			TFT.push(stats);
+			LoL.splice(index, 1);
+		}
+	});
+
 	const response = { summoner: filteredSummoner, stats: { LoL, TFT } };
 	res.status(200).json(response);
 };
