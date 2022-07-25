@@ -1,9 +1,10 @@
 const { LeagueOfLegendsAPI, TeamfightTacticsAPI } = require('../utils/axios');
-const { regions } = require('../constants/riotRegions');
+const { regions } = require('../constants/riot/regions');
 const {
 	summonerFields,
 	statsFields
-} = require('../constants/riotResponseFields');
+} = require('../constants/riot/responseFields');
+const { queueTypes } = require('../constants/riot/queueTypes');
 
 // Get summoner account data and League of Legends stats from Riot Games API
 exports.getSummoner = async function (req, res, next) {
@@ -36,13 +37,22 @@ exports.getSummoner = async function (req, res, next) {
 
 	// Filter out inisignificant fields from stats response
 	const filteredStats = stats.map(game => {
-		return game.data.map(stats => {
-			const filteredQueue = {};
-			statsFields.map(field => {
-				filteredQueue[field] = stats[field];
-			});
-			return filteredQueue;
-		});
+		return (
+			game.data
+				.map(stats => {
+					const filteredQueue = {};
+					statsFields.map(field => {
+						filteredQueue[field] = stats[field];
+					});
+					return filteredQueue;
+				})
+
+				// Replace API response queueTypes with user-friendly names
+				.map(stats => {
+					stats.queueType = queueTypes[stats.queueType];
+					return stats;
+				})
+		);
 	});
 
 	const [LoL, TFT] = filteredStats;
@@ -50,11 +60,13 @@ exports.getSummoner = async function (req, res, next) {
 	// Bugfix: move RANKED_TFT_DOUBLE_UP from LoL stats to TFT stats
 	// See: https://github.com/RiotGames/developer-relations/issues/572
 	LoL.map((stats, index) => {
-		if (stats.queueType === 'RANKED_TFT_DOUBLE_UP') {
+		if (stats.queueType === 'Ranked Teamfight Tactics (Double Up)') {
 			TFT.push(stats);
 			LoL.splice(index, 1);
 		}
 	});
+
+	console.log(filteredStats);
 
 	const response = { summoner: filteredSummoner, stats: { LoL, TFT } };
 	res.status(200).json(response);
