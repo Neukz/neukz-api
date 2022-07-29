@@ -14,7 +14,7 @@ exports.getSummoner = async function (req, res, next) {
 	const platform = regions.find(r => r.abbreviation === region.toLowerCase());
 	if (!platform) {
 		return res.status(400).json({
-			error: `Invalid region: ${region}`
+			message: `Invalid region: ${region}`
 		});
 	}
 
@@ -75,11 +75,10 @@ exports.getSummoner = async function (req, res, next) {
 		const response = { summoner: filteredSummoner, stats: { LoL, TFT } };
 		res.status(200).json(response);
 	} catch (error) {
-		// Return API error response or internal server error
+		// Return API error response or Internal Server Error
 		return res.status(error.response.status || 500).json({
-			error: error.response.statusText || 'Internal Server Error',
 			message:
-				error.message ||
+				error.response.data.status.message ||
 				'The server has encountered an error that it cannot handle'
 		});
 	}
