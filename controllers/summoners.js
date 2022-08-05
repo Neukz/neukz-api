@@ -1,9 +1,6 @@
 const { LeagueOfLegendsAPI, TeamfightTacticsAPI } = require('../utils/axios');
 const { regions } = require('../constants/riot/regions');
-const {
-	summonerFields,
-	statsFields
-} = require('../constants/riot/responseFields');
+const { statsFields } = require('../constants/riot/responseFields');
 const { queueTypes } = require('../constants/riot/queueTypes');
 
 // Get summoner account data and League of Legends stats from Riot Games API
@@ -20,26 +17,30 @@ exports.getSummoner = async function (req, res, next) {
 
 	try {
 		const encodedSummonerName = encodeURIComponent(summonerName);
-		// Get summoner account data
-		const summoner = await LeagueOfLegendsAPI.get(
-			`https://${platform.value}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodedSummonerName}`
-		);
+
+		// Get summoner account data - the API returns different IDs per key
+		const summoner = await Promise.all([
+			LeagueOfLegendsAPI.get(
+				`https://${platform.value}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodedSummonerName}`
+			),
+			TeamfightTacticsAPI.get(
+				`https://${platform.value}.api.riotgames.com/tft/summoner/v1/summoners/by-name/${encodedSummonerName}`
+			)
+		]);
+
+		// Get appropriate IDs for LoL and TFT
+		const { id: LoLId } = summoner[0].data;
+		const { id: TFTId } = summoner[1].data;
 
 		// Get summoner stats from both games simultaneously
 		const stats = await Promise.all([
 			LeagueOfLegendsAPI.get(
-				`https://${platform.value}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.data.id}`
+				`https://${platform.value}.api.riotgames.com/lol/league/v4/entries/by-summoner/${LoLId}`
 			),
 			TeamfightTacticsAPI.get(
-				`https://${platform.value}.api.riotgames.com/tft/league/v1/entries/by-summoner/${summoner.data.id}`
+				`https://${platform.value}.api.riotgames.com/tft/league/v1/entries/by-summoner/${TFTId}`
 			)
 		]);
-
-		// Filter out inisignificant fields from summoner object
-		const filteredSummoner = {};
-		summonerFields.map(field => {
-			filteredSummoner[field] = summoner.data[field];
-		});
 
 		// Filter out inisignificant fields from stats response
 		const filteredStats = stats.map(game => {
@@ -72,7 +73,7 @@ exports.getSummoner = async function (req, res, next) {
 			}
 		});
 
-		const response = { summoner: filteredSummoner, stats: { LoL, TFT } };
+		const response = { summoner: summoner[0].data, stats: { LoL, TFT } };
 		res.status(200).json(response);
 	} catch (error) {
 		// Return API error response or Internal Server Error
