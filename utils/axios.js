@@ -14,3 +14,11 @@ exports.TeamfightTacticsAPI = axios.create({
 		'X-Riot-Token': process.env.TFT_TOKEN
 	}
 });
+
+// OpenWeatherMap API
+exports.OpenWeatherMapAPI = axios.create({
+	baseURL: 'https://api.openweathermap.org/data/2.5',
+	params: {
+		appid: process.env.OWM_TOKEN
+	}
+});
