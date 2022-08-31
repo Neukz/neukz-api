@@ -7,7 +7,7 @@ require('dotenv').config({ path: './config/config.env' });
 
 // Routes
 const summoners = require('./routes/summoners');
-const weather = require('./routes/weather');
+const weathermann = require('./routes/weathermann');
 
 // Initialize express
 const app = express();
@@ -20,7 +20,7 @@ app.use(xss());
 
 // Mount routers
 app.use('/api/summoners', summoners);
-app.use('/api/weathermann', weather);
+app.use('/api/weathermann', weathermann);
 
 const port = process.env.PORT;
 

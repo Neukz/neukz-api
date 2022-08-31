@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getWeather } = require('../controllers/weather');
+const { getWeather } = require('../controllers/weathermann');
 
 const router = express.Router();
 
