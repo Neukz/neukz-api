@@ -2,13 +2,15 @@ const { OpenWeatherMapAPI } = require('../utils/axios');
 
 // Get weather data from OpenWeatherMap API
 exports.getWeather = async function (req, res, next) {
-	const { lat, lon } = req.query;
+	const { lat, lon, units } = req.query;
 
 	try {
 		const weather = await OpenWeatherMapAPI.get('/weather', {
 			params: {
 				lat,
-				lon
+				lon,
+				// Request for metric units by default and imperial units if specified
+				units: units === 'imperial' ? units : 'metric'
 			}
 		});
 
